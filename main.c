@@ -3,38 +3,22 @@
 #include <string.h>
 #include <time.h>
 
-char *getRandomWord();                     /* Creates Array of words and returns a random one */
-int getRandomWordLength(char *randomWord); /* Returns the randomWord length */
-void printFieldStart(int randomWordLength,
-                     char *userGuessWord,
-                     int *userLive,
-                     int *tries); /* Prints the Field at the start of the game
+char *getRandomWord();                                           /* Creates Array of words and returns a random one */
+int getRandomWordLength(char *randomWord);                       /* Returns the randomWord length */
+void printFieldStart(int randomWordLength, char *userGuessWord); /* Prints the Field at the start of the game
                                                                     and sets the userGuessWord to '_' */
-void userInput(char *randomWord,
-               int randomWordLength,
-               char *userGuessWord,
-               int *userLive,
-               int *tries,
-               int *checkstart,
+void userInput(char *randomWord, int randomWordLength, char *userGuessWord, int *userLive, int *tries, int *checkstart,
                char *lookupChar); /* Takes the UserInput and compares it to the randomWord */
-void checkEnding(char *randomWord,
-                 char *userGuessWord,
-                 int *masterExit,
-                 int *masterRestart,
+void checkEnding(char *randomWord, char *userGuessWord, int *masterExit, int *masterRestart,
                  int userLive); /* Checks if the randomWord is equal to the userGuessWord */
 char *resetUserGuessWord(int randomWordLength, char *userGuessWord); /* Resets the userGuessWord */
 char *getStickmanImage(int *tries);                                  /* Prints the current state of the Stickman */
-int isCharacterInWord(char *randomWord,
-                      int randomWordLength,
+int isCharacterInWord(char *randomWord, int randomWordLength,
                       char userInput); /* Counts the number of letters in the word */
 int isCharacter(char input);           /* Checks if the Input is a valid character */
-void addCharToLookupTable(char *lookupChar,
-                          char userInput,
+void addCharToLookupTable(char *lookupChar, char userInput,
                           int *checkStart); /* Checks if the character has been used already */
-void resetData(int *masterRestart,
-               int *userLive,
-               int *tries,
-               int *checkStart,
+void resetData(int *masterRestart, int *userLive, int *tries, int *checkStart,
                char *lookupChar); /* Resets the important arguments */
 
 int main()
@@ -52,7 +36,7 @@ int main()
     int randomWordLength = getRandomWordLength(randomWord);
     char *userGuessWord = (char *)malloc((unsigned long)randomWordLength * sizeof(char));
 
-    printFieldStart(randomWordLength, userGuessWord, &userLive, &tries);
+    printFieldStart(randomWordLength, userGuessWord);
 
     while (run) /* Game Loop */
     {
@@ -109,10 +93,9 @@ int getRandomWordLength(char *randomWord)
     return randomWordLength;
 }
 
-void printFieldStart(int randomWordLength, char *userGuessWord, int *userLive, int *tries)
+void printFieldStart(int randomWordLength, char *userGuessWord)
 {
     int i;
-    char *stickmanImage;
     printf("Welcome to Hangman!\n");
 
     for (i = 0; i < randomWordLength; i++)
@@ -121,12 +104,7 @@ void printFieldStart(int randomWordLength, char *userGuessWord, int *userLive, i
     }
 }
 
-void userInput(char *randomWord,
-               int randomWordLength,
-               char *userGuessWord,
-               int *userLive,
-               int *tries,
-               int *checkStart,
+void userInput(char *randomWord, int randomWordLength, char *userGuessWord, int *userLive, int *tries, int *checkStart,
                char *lookupChar)
 {
     char UserInput;
@@ -136,7 +114,7 @@ void userInput(char *randomWord,
     int checkCharacter;
     int isCharDouble = 0;
 
-    if (*checkStart == 0) /* If it is the first round */
+    if (*checkStart == 0)
     {
         printf("\n"); /* New line */
         printf("%s\n", userGuessWord);
@@ -189,11 +167,11 @@ start:
                 *tries += 1;
             }
 
-            *checkStart += 1; /* Second++ round */
+            *checkStart += 1;
 
             stickmanImage = getStickmanImage(tries); /* Get the current Stickman */
-            printf("%s\n", stickmanImage);           /* Print the current Stickman */
 
+            printf("%s\n", stickmanImage); /* Print the current Stickman */
             printf("You got %d more trie(s) left.\n", *userLive - 1);
             break;
         }
