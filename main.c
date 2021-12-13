@@ -44,7 +44,7 @@ int main()
 
     while (run) /* Game Loop */
     {
-        printf("%s", randomWord);
+        // printf("%s", randomWord);
         userInput(randomWord, randomWordLength, userGuessWord, &userLive, &tries, &checkStart, lookupChar);
         checkEnding(randomWord, userGuessWord, &masterExit, &masterRestart, userLive);
 
@@ -59,7 +59,6 @@ int main()
             randomWordLength = getRandomWordLength(randomWord);                    /* Get a new randomWordLength */
             resetUserGuessWord(randomWordLength, userGuessWord);                   /* Resets the userGuessWord */
             resetData(&masterRestart, &userLive, &tries, &checkStart, lookupChar); /* Resets the important arguments */
-            printf("\n");                                                          /* New line */
         }
     }
 
@@ -92,6 +91,7 @@ void printFieldStart(int randomWordLength, char *userGuessWord)
 {
     int i;
     printf("Welcome to Hangman!\n");
+    printf("Please enter a character between 'a' and 'z'!\n");
 
     for (i = 0; i < randomWordLength; i++)
     {
@@ -141,6 +141,8 @@ start:
         }
 
         addCharToLookupTable(lookupChar, UserInput, checkStart); /* adds the userInput to the lookupTable */
+        counter =
+            isCharacterInWord(randomWord, randomWordLength, UserInput); /* Checks if the userInput is the randomWord */
 
         if (isCharDouble == 0) /* If the userInput is not in the lookupTable */
         {
@@ -153,15 +155,16 @@ start:
             }
 
             printf("\n"); /* New line */
-            printf("%s\n", userGuessWord);
-
-            counter = isCharacterInWord(randomWord, randomWordLength, UserInput);
 
             if (counter == 0) /* If the userInput is not in the randomWord */
             {
+                printf("The character %c you entered is not in the word!\n", UserInput);
+                printf("\n"); /* New line */
                 *userLive -= 1;
                 *tries += 1;
             }
+
+            printf("%s\n", userGuessWord);
 
             *checkStart += 1;
 
