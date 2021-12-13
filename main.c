@@ -3,6 +3,8 @@
 #include <string.h>
 #include <time.h>
 
+/* TD Liste einzeigen, was für buchstaben schon eingebene wurden sind */
+
 #define MAX_LENTGH_OF_RANDOM_WORD 12 /* Constant size */
 
 char *getRandomWord();                                           /* Creates Array of words and returns a random one */
@@ -70,7 +72,7 @@ char *getRandomWord()
     int max = 26;
     int min = 0;
 
-    char *randomWord[] = {"car",       "apple",       "dog",      "street",     "train",       "carbecue", "cottle",
+    char *randomWord[] = {"car",       "apple",       "dog",      "street",     "train",       "barbecue", "cottle",
                           "record",    "ship",        "table",    "typewriter", "videotape",   "toilet",   "tapestry",
                           "parachute", "thermometer", "water",    "weapon",     "wheelchair",  "pebble",   "pebble",
                           "chisel",    "airforce",    "computer", "ears",       "electricity", "game"};
@@ -124,7 +126,7 @@ void userInput(char *randomWord, int randomWordLength, char *userGuessWord, int 
 
     printf("\n"); /* New line */
 start:
-    printf("Please enter a letter: ");
+    printf("Please enter a character: ");
     scanf(" %c", &UserInput);
 
     checkCharacter = isCharacter(UserInput); /* Checks the userInput */
@@ -154,15 +156,13 @@ start:
                 }
             }
 
-            printf("\n"); /* New line */
-
             if (counter == 0) /* If the userInput is not in the randomWord */
             {
-                printf("The character %c you entered is not in the word!\n", UserInput);
-                printf("\n"); /* New line */
+                printf("The character '%c' you entered is not in the word!\n", UserInput);
                 *userLive -= 1;
                 *tries += 1;
             }
+            printf("\n"); /* New line */
 
             printf("%s\n", userGuessWord);
 
@@ -176,7 +176,7 @@ start:
         }
         else
         {
-            printf("You already tried that character! Try another one!\n");
+            printf("You already tried '%c'! Try another one!\n", UserInput);
             break;
         }
 
