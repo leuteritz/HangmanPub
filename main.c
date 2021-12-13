@@ -3,18 +3,16 @@
 #include <string.h>
 #include <time.h>
 
-/* TD Liste einzeigen, was für buchstaben schon eingebene wurden sind */
-
 #define MAX_LENTGH_OF_RANDOM_WORD 12 /* Constant size */
 
 char *getRandomWord();                                           /* Creates Array of words and returns a random one */
 int getRandomWordLength(char *randomWord);                       /* Returns the randomWord length */
 void printFieldStart(int randomWordLength, char *userGuessWord); /* Prints the Field at the start of the game
                                                                     and sets the userGuessWord to '_' */
-void userInput(char *randomWord, int randomWordLength, char *userGuessWord, int *userLive, int *tries, int *checkstart,
-               char *lookupChar); /* Takes the UserInput and compares it to the randomWord */
-                                  /* Prints the current stickmanImage */
-                                  /* Prints the  current userLive */
+void userInput(char *randomWord, int randomWordLength, char *userGuessWord, int *userLive, int *tries,
+               int *roundCounter, char *lookupChar); /* Takes the UserInput and compares it to the randomWord */
+                                                     /* Prints the current stickmanImage */
+                                                     /* Prints the  current userLive */
 void checkEnding(char *randomWord, char *userGuessWord, int *masterExit, int *masterRestart,
                  int userLive); /* Checks if the randomWord is equal to the userGuessWord */
 void resetUserGuessWord(int randomWordLength, char *userGuessWord); /* Resets the userGuessWord */
@@ -23,16 +21,17 @@ int isCharacterInWord(char *randomWord, int randomWordLength,
                       char userInput); /* Counts the number of letters in the word */
 int isCharacter(char input);           /* Checks if the Input is a valid character */
 void addCharToLookupTable(char *lookupChar, char userInput,
-                          int *checkStart); /* Checks if the character has been used already */
-void resetData(int *masterRestart, int *userLive, int *tries, int *checkStart,
-               char *lookupChar); /* Resets the important arguments */
+                          int *roundCounter); /* Checks if the character has been used already */
+void resetData(int *masterRestart, int *userLive, int *tries, int *roundCounter,
+               char *lookupChar);                            /* Resets the important arguments */
+void printLookupTable(char *lookupTable, int *roundCounter); /* Prints the already used characters */
 
 int main()
 {
-    int run = 1;        /* Run variable */
-    int userLive = 7;   /* User Live */
-    int tries = 0;      /* Counts the tries */
-    int checkStart = 0; /* Variable to check if it is the beginning of the game */
+    int run = 1;          /* Run variable */
+    int userLive = 7;     /* User Live */
+    int tries = 0;        /* Counts the tries */
+    int roundCounter = 0; /* Variable to check if it is the beginning of the game */
     char lookupChar[MAX_LENTGH_OF_RANDOM_WORD + 7] = {
         ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
         ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '\0'}; /* Lookup Table for already used characters */
@@ -47,7 +46,7 @@ int main()
     while (run) /* Game Loop */
     {
         // printf("%s", randomWord);
-        userInput(randomWord, randomWordLength, userGuessWord, &userLive, &tries, &checkStart, lookupChar);
+        userInput(randomWord, randomWordLength, userGuessWord, &userLive, &tries, &roundCounter, lookupChar);
         checkEnding(randomWord, userGuessWord, &masterExit, &masterRestart, userLive);
 
         if (masterExit == 1) /* Exits the game */
@@ -56,11 +55,12 @@ int main()
         }
         if (masterRestart == 1) /* Resets all important variables */
         {
-            userGuessWord[0] = '\0';                                               /* Clears the userGuessWord */
-            randomWord = getRandomWord();                                          /* Get a new randomWord */
-            randomWordLength = getRandomWordLength(randomWord);                    /* Get a new randomWordLength */
-            resetUserGuessWord(randomWordLength, userGuessWord);                   /* Resets the userGuessWord */
-            resetData(&masterRestart, &userLive, &tries, &checkStart, lookupChar); /* Resets the important arguments */
+            userGuessWord[0] = '\0';                             /* Clears the userGuessWord */
+            randomWord = getRandomWord();                        /* Get a new randomWord */
+            randomWordLength = getRandomWordLength(randomWord);  /* Get a new randomWordLength */
+            resetUserGuessWord(randomWordLength, userGuessWord); /* Resets the userGuessWord */
+            resetData(&masterRestart, &userLive, &tries, &roundCounter,
+                      lookupChar); /* Resets the important arguments */
         }
     }
 
@@ -69,13 +69,14 @@ int main()
 
 char *getRandomWord()
 {
-    int max = 26;
+    int max = 31;
     int min = 0;
 
-    char *randomWord[] = {"car",       "apple",       "dog",      "street",     "train",       "barbecue", "cottle",
-                          "record",    "ship",        "table",    "typewriter", "videotape",   "toilet",   "tapestry",
-                          "parachute", "thermometer", "water",    "weapon",     "wheelchair",  "pebble",   "pebble",
-                          "chisel",    "airforce",    "computer", "ears",       "electricity", "game"};
+    char *randomWord[] = {
+        "car",   "apple",       "dog",        "street",     "train",  "barbecue",   "cottle",    "record",
+        "ship",  "table",       "typewriter", "videotape",  "toilet", "tapestry",   "parachute", "thermometer",
+        "water", "weapon",      "wheelchair", "pebble",     "pebble", "chisel",     "airforce",  "computer",
+        "ears",  "electricity", "game",       "cappuccino", "drink",  "hieroglyph", "sandpaper", "teeth"};
 
     srand((unsigned int)time(NULL)); /* Sets the random Seed to the time Seed */
 
@@ -102,8 +103,8 @@ void printFieldStart(int randomWordLength, char *userGuessWord)
     userGuessWord[i] = '\0';
 }
 
-void userInput(char *randomWord, int randomWordLength, char *userGuessWord, int *userLive, int *tries, int *checkStart,
-               char *lookupChar)
+void userInput(char *randomWord, int randomWordLength, char *userGuessWord, int *userLive, int *tries,
+               int *roundCounter, char *lookupChar)
 {
     char UserInput;
     char *stickmanImage;
@@ -112,7 +113,8 @@ void userInput(char *randomWord, int randomWordLength, char *userGuessWord, int 
     int checkCharacter;
     int isCharDouble = 0;
 
-    if (*checkStart == 0) /* If it is the start of the game */
+
+    if (*roundCounter == 0) /* Checks if it is the First Round */
     {
         printf("\n"); /* New line */
         printf("%s\n", userGuessWord);
@@ -124,7 +126,9 @@ void userInput(char *randomWord, int randomWordLength, char *userGuessWord, int 
     }
 
 
-    printf("\n"); /* New line */
+    printf("\n");                               /* New line */
+    printLookupTable(lookupChar, roundCounter); /* Prints the already used characters */
+    printf("\n");                               /* New line */
 start:
     printf("Please enter a character: ");
     scanf(" %c", &UserInput);
@@ -142,7 +146,7 @@ start:
             }
         }
 
-        addCharToLookupTable(lookupChar, UserInput, checkStart); /* adds the userInput to the lookupTable */
+        addCharToLookupTable(lookupChar, UserInput, roundCounter); /* Adds the userInput to the lookupTable */
         counter =
             isCharacterInWord(randomWord, randomWordLength, UserInput); /* Checks if the userInput is the randomWord */
 
@@ -162,11 +166,14 @@ start:
                 *userLive -= 1;
                 *tries += 1;
             }
-            printf("\n"); /* New line */
+
+            printf("\n");                                                  /* New line */
+            printf("-------------------------------------------------\n"); /* Paragraph */
+            printf("\n");                                                  /* New line */
 
             printf("%s\n", userGuessWord);
 
-            *checkStart += 1;
+            *roundCounter += 1; /* Adds 1 to the roundCounter */
 
             stickmanImage = getStickmanImage(tries); /* Get the current Stickman */
 
@@ -278,22 +285,37 @@ int isCharacter(char input)
     return 0;
 }
 
-void addCharToLookupTable(char *lookupChar, char userInput, int *checkStart)
+void addCharToLookupTable(char *lookupChar, char userInput, int *roundCounter)
 {
-    lookupChar[*checkStart] = userInput;
+    lookupChar[*roundCounter] = userInput;
 }
 
-void resetData(int *masterRestart, int *userLive, int *tries, int *checkStart, char *lookupChar)
+void resetData(int *masterRestart, int *userLive, int *tries, int *roundCounter, char *lookupChar)
 {
     int i;
     *masterRestart = 0; /* Resets the masterRestart */
     *userLive = 7;      /* Resets userLive */
     *tries = 0;         /* Resets tries */
-    *checkStart = 0;    /* Resets checkStart */
+    *roundCounter = 0;  /* Resets roundCounter */
 
     for (i = 0; i <= 17; i++) /* Resets the Lookup Table */
     {
         lookupChar[i] = ' ';
     }
     lookupChar[i] = '\0';
+}
+
+void printLookupTable(char *lookupTable, int *roundCounter)
+{
+    int i;
+
+    printf("The already used characters are: ");
+
+    for (i = 0; i < *roundCounter; i++)
+    {
+        printf("%c", lookupTable[i]);
+
+        printf(",");
+    }
+    printf("\n");
 }
