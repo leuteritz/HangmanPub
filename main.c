@@ -45,7 +45,6 @@ int main()
 
     while (run) /* Game Loop */
     {
-        // printf("%s", randomWord);
         userInput(randomWord, randomWordLength, userGuessWord, &userLive, &tries, &roundCounter, lookupChar);
         checkEnding(randomWord, userGuessWord, &masterExit, &masterRestart, userLive);
 
@@ -116,7 +115,9 @@ void userInput(char *randomWord, int randomWordLength, char *userGuessWord, int 
 
     if (*roundCounter == 0) /* Checks if it is the First Round */
     {
-        printf("\n"); /* New line */
+        printf("\n");                                                  /* New line */
+        printf("-------------------------------------------------\n"); /* Paragraph */
+        printf("\n");                                                  /* New line */
         printf("%s\n", userGuessWord);
 
         stickmanImage = getStickmanImage(tries); /* Get the current Stickman */
